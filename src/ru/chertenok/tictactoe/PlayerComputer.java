@@ -47,10 +47,20 @@ public class PlayerComputer extends Player {
         len1 = getLineLen(x, y, dx1, dy1, getSymbolInt());
         len2 = getLineLen(x, y, dx2, dy2, getSymbolInt());
 
+
         // общая длина реальная в случае хода
         int my = len1.myLen + len2.myLen + 1;
         // общая возможная длина с учётом пустых клеток (пустые клетки присваиваем тому у кого есть заполненные рядом)
         int myFree = ((len1.youLen == 0) ? (len1.myLen + len1.lenFree) : len1.myLen) + ((len2.youLen == 0) ? (len2.myLen + len2.lenFree) : len2.myLen) + 1;
+        // открытая ли позиция с одной стороны
+        int priorityYou = ((len1.myLen == 0) && (len1.lenFree > 0)) ? 1 : 0;
+        // и с другой
+        priorityYou += ((len2.myLen == 0) && (len2.lenFree > 0)) ? 1 : 0;
+        // открытая ли позиция с одной стороны
+        int priorityMy = ((len1.youLen == 0) && (len1.lenFree > 0)) ? 1 : 0;
+        // и с другой
+        priorityMy += ((len2.youLen == 0) && (len2.lenFree > 0)) ? 1 : 0;
+
 
         int you = len1.youLen + len2.youLen + 1;
         // общая возможная длина с учётом пустых клеток (пустые клетки присваиваем тому у кого есть заполненные рядом)
@@ -62,13 +72,16 @@ public class PlayerComputer extends Player {
         if ((maxLenMy < my) && (myFree >= field.getCountToWin())) maxLenMy = my;
         if ((maxLenYou < you) && (youFree >= field.getCountToWin())) maxLenYou = you;
 
-        return new int[]{maxLenMy, maxLenYou};
+        return new int[]{maxLenMy, maxLenYou, priorityMy, priorityYou};
     }
 
     private void NextSearch() {
         // перебираем все пустые
         int maxLenMy = 0;
         int maxLenYou = 0;
+        int maxLenMyPriority = 0;
+        int maxLenYouPriority = 0;
+
         int myX = 0;
         int myY = 0;
         int youX = 0;
@@ -77,44 +90,75 @@ public class PlayerComputer extends Player {
         for (int x = 0; x < field.getCountCol(); x++) {
             for (int y = 0; y < field.getCountRow(); y++) {
                 if (field.getCellState(x, y) == Cell.SPACE) {
-                    //todo  добавить статус - открытая/полуоткрытая/закрытая линия,
-                    //todo или может ли быть достигнута победа из этой точки в дальнейшем
-                    //todo точки могущие принести победу должны иметь приоритет над другими такой же длины
                     // и высчитываем свои и чужие позиции в результате такого хода
+                    // todo добавить ещё один параметр для обоих игроков
+                    // todo - сколько линий из 8 продолжится, учитывать при равной длине
                     int oldMaxMy = maxLenMy;
                     int oldMaxYou = maxLenYou;
-               //     int oldDangerMy = maxLen
+                    int oldMaxMyPriority = maxLenMyPriority;
+                    int oldMaxYouPriority = maxLenYouPriority;
+
 
                     // горизонт
                     p = checkVector(x, y, -1, 0, 1, 0, maxLenMy, maxLenYou);
-                    // если новая длина больше то сохраняем
-                    if (maxLenMy < p[0]) maxLenMy = p[0];
-                    if (maxLenYou < p[1]) maxLenYou = p[1];
+                    // если новая длина больше
+                    // или равна, но у новой клетки больше открытых сторон, то сохраняем
+                    if (maxLenMy < p[0] || (maxLenMy == p[0] && maxLenMyPriority < p[2])) {
+                        maxLenMy = p[0];
+                        maxLenMyPriority = p[2];
+                    }
+
+                    if ((maxLenYou < p[1] || (maxLenYou == p[1] && maxLenYouPriority < p[3]))) {
+                        maxLenYou = p[1];
+                        maxLenMyPriority = p[3];
+                    }
+
 
                     // вертикаль
                     p = checkVector(x, y, 0, 1, 0, -1, maxLenMy, maxLenYou);
                     // если новая длина больше то сохраняем
-                    if (maxLenMy < p[0]) maxLenMy = p[0];
-                    if (maxLenYou < p[1]) maxLenYou = p[1];
+                    if (maxLenMy < p[0] || (maxLenMy == p[0] && maxLenMyPriority < p[2])) {
+                        maxLenMy = p[0];
+                        maxLenMyPriority = p[2];
+                    }
+
+                    if ((maxLenYou < p[1] || (maxLenYou == p[1] && maxLenYouPriority < p[3]))) {
+                        maxLenYou = p[1];
+                        maxLenMyPriority = p[3];
+                    }
 
                     // диагональ 1
                     p = checkVector(x, y, 1, 1, -1, -1, maxLenMy, maxLenYou);
                     // если новая длина больше то сохраняем
-                    if (maxLenMy < p[0]) maxLenMy = p[0];
-                    if (maxLenYou < p[1]) maxLenYou = p[1];
+                    if (maxLenMy < p[0] || (maxLenMy == p[0] && maxLenMyPriority < p[2])) {
+                        maxLenMy = p[0];
+                        maxLenMyPriority = p[2];
+                    }
+
+                    if ((maxLenYou < p[1] || (maxLenYou == p[1] && maxLenYouPriority < p[3]))) {
+                        maxLenYou = p[1];
+                        maxLenMyPriority = p[3];
+                    }
 
                     // диагональ 2
                     p = checkVector(x, y, -1, +1, +1, -1, maxLenMy, maxLenYou);
                     // если новая длина больше то сохраняем
-                    if (maxLenMy < p[0]) maxLenMy = p[0];
-                    if (maxLenYou < p[1]) maxLenYou = p[1];
+                    if (maxLenMy < p[0] || (maxLenMy == p[0] && maxLenMyPriority < p[2])) {
+                        maxLenMy = p[0];
+                        maxLenMyPriority = p[2];
+                    }
 
-                    if (oldMaxMy != maxLenMy) {
+                    if ((maxLenYou < p[1] || (maxLenYou == p[1] && maxLenYouPriority < p[3]))) {
+                        maxLenYou = p[1];
+                        maxLenMyPriority = p[3];
+                    }
+
+                    if ((oldMaxMy != maxLenMy) || (oldMaxMyPriority != maxLenMyPriority))    {
                         myX = x;
                         myY = y;
                     }
 
-                    if (oldMaxYou != maxLenYou) {
+                    if ((oldMaxYou != maxLenYou) || (oldMaxYouPriority != maxLenYouPriority )) {
                         youX = x;
                         youY = y;
                     }
@@ -123,7 +167,7 @@ public class PlayerComputer extends Player {
                 }
             }
         }
-        System.out.printf("%n  длина посл игрока = %d  длина посл комп = %d,  лучший ход компьютера (%d,%d), лучший ход игрока (%d,%d) ", maxLenYou, maxLenMy,  myX, myY, youX, youY);
+        System.out.printf("%n  длина посл игрока = %d  длина посл комп = %d,  лучший ход компьютера (%d,%d), лучший ход игрока (%d,%d) ", maxLenYou, maxLenMy, myX, myY, youX, youY);
         // если можно выиграть то выигрываем
         if (field.getCountToWin() <= maxLenMy) {
             field.setCellState(myX, myY, getSymbolInt());
@@ -166,7 +210,7 @@ public class PlayerComputer extends Player {
                 // my
                 myLen++;
                 youStop = true;
-            } else if (field.getCellState(x + dx, y + dy) != Cell.SPACE ) {
+            } else if (field.getCellState(x + dx, y + dy) != Cell.SPACE) {
                 //you
                 youLen++;
                 myStop = true;
