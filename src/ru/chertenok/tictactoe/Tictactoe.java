@@ -39,7 +39,7 @@ public class Tictactoe extends Application {
         Scene scene = new Scene(root, 700, 640);
         primaryStage.setTitle("Крестики-Нолики");
         // Устанавливаем иконку приложения.
-        primaryStage.getIcons().add(new Image("file:resources/image/ico.png"));
+        primaryStage.getIcons().add(new Image( Tictactoe.class.getResource("/ru/chertenok/tictactoe/resources/image/ico.png").toString()));
 
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);

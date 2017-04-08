@@ -83,6 +83,7 @@ public class PlayerComputer extends Player {
                     // и высчитываем свои и чужие позиции в результате такого хода
                     int oldMaxMy = maxLenMy;
                     int oldMaxYou = maxLenYou;
+               //     int oldDangerMy = maxLen
 
                     // горизонт
                     p = checkVector(x, y, -1, 0, 1, 0, maxLenMy, maxLenYou);

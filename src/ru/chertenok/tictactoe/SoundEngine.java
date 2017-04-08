@@ -3,8 +3,6 @@ package ru.chertenok.tictactoe;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
-import java.io.File;
-
 /**
  * Created by 13th on 08.04.2017.
  */
@@ -17,23 +15,23 @@ public class SoundEngine {
     }
 
     public static void playWin(){
-        String file = "resources/sound/win.mp3";
-        playSound(file);
+        String file = "/ru/chertenok/tictactoe/resources/sound/win.mp3";
+        playSound( file);
     }
 
     public static void playLoss(){
-        String file = "resources/sound/loss.mp3";
+        String file = "/ru/chertenok/tictactoe/resources/sound/loss.mp3";
         playSound(file);
     }
 
     public static void playTurn(){
-        String file = "resources/sound/turn.mp3";
+        String file = "/ru/chertenok/tictactoe/resources/sound/turn.mp3";
         playSound(file);
 
     }
 
     private static void playSound(String file) {
-        Media sound = new Media(new File(file).toURI().toString());
+        Media sound = new Media(SoundEngine.class.getResource(file).toString());
         stopSound();
         currentPlayer = new MediaPlayer(sound);
         currentPlayer.play();

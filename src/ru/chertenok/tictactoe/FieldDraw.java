@@ -12,11 +12,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-
-import java.awt.*;
 
 /**
  *
@@ -92,7 +89,7 @@ public class FieldDraw {
         root2.getChildren().add(labMessage);
         root2.getChildren().add(butReset);
         root.getChildren().add(labMessage);
-        BackgroundImage myBI= new BackgroundImage(new Image("file:resources/image/background.jpg",0,0,false,true),
+        BackgroundImage myBI= new BackgroundImage(new Image(FieldDraw.class.getResource("/ru/chertenok/tictactoe/resources/image/background.jpg").toString(),0,0,false,true),
                 BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT,
                 BackgroundSize.DEFAULT);
 //then you set to your node
