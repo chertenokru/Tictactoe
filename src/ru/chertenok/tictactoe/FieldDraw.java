@@ -10,9 +10,13 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.TilePane;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+
+import java.awt.*;
 
 /**
  *
@@ -34,6 +38,12 @@ public class FieldDraw {
 
     public void ReDraw() {
         labMessage.setText(field.getMessage());
+
+        if (field.isWin())
+            labMessage.setTextFill(Color.DARKRED);
+        else
+            labMessage.setTextFill(Color.BLUE);
+
 
 
         for (int x = 0; x < field.getCountCol(); x++) {
@@ -77,7 +87,12 @@ public class FieldDraw {
         root2.getChildren().add(labMessage);
         root2.getChildren().add(butReset);
         root.getChildren().add(labMessage);
-        root.setStyle("-fx-background-image: url(\"resources/image/background.jpg\");");
+        BackgroundImage myBI= new BackgroundImage(new Image("file:resources/image/background.jpg",0,0,false,true),
+                BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT,
+                BackgroundSize.DEFAULT);
+//then you set to your node
+        root.setBackground(new Background(myBI));
+       // root.setStyle("-fx-background-image: url(resources/image/background.jpg);");
 
 
         for (int x = 0; x < field.getCountCol(); x++) {
@@ -105,6 +120,7 @@ public class FieldDraw {
         }
         //root1.getChildren().add(root2);
         root.getChildren().add(butReset);
+        ReDraw();
 
     }
 
