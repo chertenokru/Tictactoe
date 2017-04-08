@@ -38,7 +38,7 @@ abstract public class Player {
     public  Player(Field field,int symbolInt, String name) {
         this.field = field;
         this.symbolInt = symbolInt;
-        if (symbolInt == Cell.SYM_O) this.symbol = 'O'; else this.symbol = 'X';
+        if (symbolInt == Cell.O) this.symbol = 'O'; else this.symbol = 'X';
         this.name = name;
         isComputer = false;
     }

@@ -39,7 +39,7 @@ public class FieldDraw {
     public void ReDraw() {
         labMessage.setText(field.getMessage());
 
-        if (field.isWin())
+        if (field.isFinish())
             labMessage.setTextFill(Color.DARKRED);
         else
             labMessage.setTextFill(Color.BLUE);
@@ -54,6 +54,11 @@ public class FieldDraw {
                     btn[x][y].setStyle("-fx-background-color: red");
                     else
                     btn[x][y].setStyle(defStyle);
+
+                    if (field.isLastTurn(x,y))
+                    {
+                        btn[x][y].setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+                    } else btn[x][y].setBorder(null);
 
 
             }

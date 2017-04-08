@@ -12,9 +12,9 @@ package ru.chertenok.tictactoe;
 public class Cell {
 
     private int state;
-    public final static int SYM_P = 0;
-    public final static int SYM_X = 1;
-    public final static int SYM_O = 2;
+    public final static int SPACE = 0;
+    public final static int X = 1;
+    public final static int O = 2;
 
     public void setState(int state) {
         this.state = state;
@@ -25,23 +25,11 @@ public class Cell {
         return state;
     }
 
-    public void setStateX() {
-        state = SYM_X;
-    }
-
-      public void setStateInit() {
-        state = SYM_P;
-    }
-
-    public void setStateO() {
-        state = SYM_O;
-    }
-
     @Override
     public String toString() {
-        if (state == SYM_X) {
-            return "x";
-        } else if (state == SYM_O) {
+        if (state == X) {
+            return "X";
+        } else if (state == O) {
             return "0";
         } else {
             return " ";
@@ -50,6 +38,6 @@ public class Cell {
     }
 
     public Cell() {
-        state = SYM_P;
+        state = SPACE;
     }
 }

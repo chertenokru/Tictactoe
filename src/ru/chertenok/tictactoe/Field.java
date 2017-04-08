@@ -5,11 +5,7 @@
  */
 package ru.chertenok.tictactoe;
 
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-
 import java.awt.*;
-import java.io.File;
 import java.util.*;
 
 /**
@@ -25,15 +21,19 @@ public class Field {
     private int cellUsesCount = 0;
     private boolean isWin = false;
     private boolean isFinish = false;
+    // храним выигрышную линию для отрисовки
     private java.util.List<Point> listWinPoint = new ArrayList<>(5);
+    // временный список текущей линии
     private java.util.List<Point> temp = new ArrayList<>(5);
 
     //для упрощения игроки и логика внутри класса поле
     private Player[] players = new Player[2];
     // текущий игрок
     private Player currentPlayer;
-
+    // игровое поле
     private Cell[][] cell;
+    // последний ход
+    private int[] lastTurn = new int[2];
 
 
     public boolean isWin() {
@@ -70,14 +70,19 @@ public class Field {
         for (int x = 0; x < countCol; x++) {
             for (int y = 0; y < countRow; y++) {
                 cell[x][y] = new Cell();
-                cell[x][y].setState(Cell.SYM_P);
+                cell[x][y].setState(Cell.SPACE);
             }
         }
         isWin = false;
         isFinish = false;
         currentPlayer = players[0];
+        cellUsesCount = 0;
         listWinPoint.clear();
-        message = "Игра перезапущена, Ваш ход,"+currentPlayer.getName() +" !";
+        message = "Игра перезапущена, Ваш ход," + currentPlayer.getName() + " !";
+    }
+
+    public boolean isLastTurn(int x, int y) {
+        return (lastTurn[0] == x && lastTurn[1] == y && cellUsesCount > 1);
     }
 
     public int getCellUsesCount() {
@@ -95,17 +100,20 @@ public class Field {
         message = "";
         SoundEngine.playTurn();
     }
-    public boolean checkWinCell(int x, int y){
-        Point p = new Point(x,y);
+
+    //проверяем входит ли ячейка в выигрышную серию для отрисовки
+    public boolean checkWinCell(int x, int y) {
+        Point p = new Point(x, y);
         return (listWinPoint.contains(p));
     }
 
+    // проверка победы
     public boolean checkWin() {
 
         for (int x = 0; x < countCol; x++) {
             for (int y = 0; y < countRow; y++) {
                 // если не пусто, то проверяем ячейку на все исходящие линии
-                if (cell[x][y].getState() != Cell.SYM_P)
+                if (cell[x][y].getState() != Cell.SPACE)
                     // если выигрыш, то не продолжаем
                     if (checkCell(x, y)) {
                         isWin = true;
@@ -118,7 +126,7 @@ public class Field {
 
         if (isWin) {
             message = "Игра окончена, победа игрока " + currentPlayer.getName();
-            if (currentPlayer.getIsComputer())  SoundEngine.playLoss();
+            if (currentPlayer.getIsComputer()) SoundEngine.playLoss();
             else SoundEngine.playWin();
         }
 
@@ -146,14 +154,14 @@ public class Field {
         int symbol = cell[x][y].getState();
         int count = 1;
         temp.clear();
-        temp.add(new Point(x,y));
+        temp.add(new Point(x, y));
 
         while ((x + dx >= 0 && y + dy >= 0 && x + dx < countCol && y + dy < countRow)
                 && (getCellState(x + dx, y + dy) == symbol)) {
             count++;
             x += dx;
             y += dy;
-            temp.add(new Point(x,y));
+            temp.add(new Point(x, y));
         }
         if (count >= countToWin) {
             listWinPoint.clear();
@@ -176,14 +184,19 @@ public class Field {
     }
 
     public void setCellState(int x, int y, int state) {
-        if (cell[x][y].getState() != Cell.SYM_P) return;
+        if (cell[x][y].getState() != Cell.SPACE) return;
         cell[x][y].setState(state);
         cellUsesCount++;
+        //  если ход компа то сохраняем последний ход для отрисовки
+        if ((players[0].getIsComputer() && players[0].getSymbolInt() == state) || (players[1].getIsComputer() && players[1].getSymbolInt() == state)) {
+            lastTurn[0] = x;
+            lastTurn[1] = y;
+        }
     }
 
     public void onCellClick(int x, int y) {
 
-        if (cell[x][y].getState() != Cell.SYM_P) return;
+        if (cell[x][y].getState() != Cell.SPACE) return;
         if (currentPlayer.getIsComputer()) return;
         if (isFinish || isWin) return;
         setCellState(x, y, currentPlayer.getSymbolInt());
@@ -209,22 +222,22 @@ public class Field {
         for (int x = 0; x < countCol; x++) {
             for (int y = 0; y < countRow; y++) {
                 cell[x][y] = new Cell();
-                cell[x][y].setState(Cell.SYM_P);
+                cell[x][y].setState(Cell.SPACE);
             }
         }
 
         // создаём игроков
 
-        players[0] = new Player(this, Cell.SYM_O, "Игрок") {
+        players[0] = new Player(this, Cell.O, "Игрок") {
             @Override
             public void NextMove() {
             }
         };
-        players[1] = new PlayerComputer(this, Cell.SYM_X);
+        players[1] = new PlayerComputer(this, Cell.X);
 
         currentPlayer = players[0];
 
-        message = "Игра начата, Ваш ход "+currentPlayer.getName()+"!";
+        message = "Игра начата, Ваш ход " + currentPlayer.getName() + "!";
     }
 
 

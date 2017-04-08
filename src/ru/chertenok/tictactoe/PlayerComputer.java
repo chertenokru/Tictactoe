@@ -15,16 +15,19 @@ public class PlayerComputer extends Player {
     class Point {
         int myLen;
         int youLen;
+        int lenFree;
         int x;
         int y;
 
-        private Point(int myLen, int youLen, int x, int y) {
+        public Point(int myLen, int youLen, int lenFree, int x, int y) {
             this.myLen = myLen;
             this.youLen = youLen;
+            this.lenFree = lenFree;
             this.x = x;
             this.y = y;
         }
     }
+
 
     public PlayerComputer(Field field, int symbol) {
         super(field, symbol, "Компьютер");
@@ -33,68 +36,84 @@ public class PlayerComputer extends Player {
 
     @Override
     public void NextMove() {
-        if (field.getCellUsesCount() < 3) NextRandom();
+        if (field.getCellUsesCount() <= 1) NextRandom();
         else NextSearch();
 
     }
 
-    private void NextSearch() {
-        // перебираем все пустые
-
+    private int[] checkVector(int x, int y, int dx1, int dy1, int dx2, int dy2, int maxLenMy, int maxLenYou) {
         Point len1;
         Point len2;
+        len1 = getLineLen(x, y, dx1, dy1, getSymbolInt());
+        len2 = getLineLen(x, y, dx2, dy2, getSymbolInt());
+
+        // общая длина реальная в случае хода
+        int my = len1.myLen + len2.myLen + 1;
+        // общая возможная длина с учётом пустых клеток (пустые клетки присваиваем тому у кого есть заполненные рядом)
+        int myFree = ((len1.youLen == 0) ? (len1.myLen + len1.lenFree) : len1.myLen) + ((len2.youLen == 0) ? (len2.myLen + len2.lenFree) : len2.myLen) + 1;
+
+        int you = len1.youLen + len2.youLen + 1;
+        // общая возможная длина с учётом пустых клеток (пустые клетки присваиваем тому у кого есть заполненные рядом)
+        // если проверять свои >0 то бага если клетка пустые, ибо тогда надо всем прибавлять
+        int youFree = ((len1.myLen == 0) ? (len1.youLen + len1.lenFree) : len1.youLen) + ((len2.myLen == 0) ? (len2.youLen + len2.lenFree) : len2.youLen) + 1;
+
+        // и если только потенциальная длина поля больше или равна нужной для победы,
+        // то только тогда сравниваем её с ранее максимальной
+        if ((maxLenMy < my) && (myFree >= field.getCountToWin())) maxLenMy = my;
+        if ((maxLenYou < you) && (youFree >= field.getCountToWin())) maxLenYou = you;
+
+        return new int[]{maxLenMy, maxLenYou};
+    }
+
+    private void NextSearch() {
+        // перебираем все пустые
         int maxLenMy = 0;
         int maxLenYou = 0;
         int myX = 0;
         int myY = 0;
-
         int youX = 0;
         int youY = 0;
-
-
+        int[] p;
         for (int x = 0; x < field.getCountCol(); x++) {
-            for(int y = 0; y <field.getCountRow(); y++) {
-                if (field.getCellState(x,y) == Cell.SYM_P )
-                {
+            for (int y = 0; y < field.getCountRow(); y++) {
+                if (field.getCellState(x, y) == Cell.SPACE) {
                     //todo  добавить статус - открытая/полуоткрытая/закрытая линия,
                     //todo или может ли быть достигнута победа из этой точки в дальнейшем
                     //todo точки могущие принести победу должны иметь приоритет над другими такой же длины
                     // и высчитываем свои и чужие позиции в результате такого хода
-                   int oldMaxMy = maxLenMy;
-                   int oldMaxYou = maxLenYou;
+                    int oldMaxMy = maxLenMy;
+                    int oldMaxYou = maxLenYou;
 
                     // горизонт
-                    len1 = getLineLen(x,y,-1,0, getSymbolInt());
-                    len2 = getLineLen(x,y,1,0, getSymbolInt());
-                    if (maxLenMy < (len1.myLen + len2.myLen+1) ) maxLenMy = len1.myLen + len2.myLen + 1;
-                    if (maxLenYou < (len1.youLen + len2.youLen+1)) maxLenYou = len1.youLen + len2.youLen + 1;
+                    p = checkVector(x, y, -1, 0, 1, 0, maxLenMy, maxLenYou);
+                    // если новая длина больше то сохраняем
+                    if (maxLenMy < p[0]) maxLenMy = p[0];
+                    if (maxLenYou < p[1]) maxLenYou = p[1];
 
                     // вертикаль
-                    len1 = getLineLen(x,y,0,-1, getSymbolInt());
-                    len2 = getLineLen(x,y,0,1, getSymbolInt());
-                    if (maxLenMy < (len1.myLen + len2.myLen+1) ) maxLenMy = len1.myLen + len2.myLen + 1;
-                    if (maxLenYou < (len1.youLen + len2.youLen+1)) maxLenYou = len1.youLen + len2.youLen + 1;
+                    p = checkVector(x, y, 0, 1, 0, -1, maxLenMy, maxLenYou);
+                    // если новая длина больше то сохраняем
+                    if (maxLenMy < p[0]) maxLenMy = p[0];
+                    if (maxLenYou < p[1]) maxLenYou = p[1];
 
                     // диагональ 1
-                    len1 = getLineLen(x,y,1,1, getSymbolInt());
-                    len2 = getLineLen(x,y,-1,-1, getSymbolInt());
-                    if (maxLenMy < (len1.myLen + len2.myLen+1) ) maxLenMy = len1.myLen + len2.myLen + 1;
-                    if (maxLenYou < (len1.youLen + len2.youLen+1)) maxLenYou = len1.youLen + len2.youLen + 1;
+                    p = checkVector(x, y, 1, 1, -1, -1, maxLenMy, maxLenYou);
+                    // если новая длина больше то сохраняем
+                    if (maxLenMy < p[0]) maxLenMy = p[0];
+                    if (maxLenYou < p[1]) maxLenYou = p[1];
 
                     // диагональ 2
-                    len1 = getLineLen(x,y,-1,+1, getSymbolInt());
-                    len2 = getLineLen(x,y,+1,-1, getSymbolInt());
-                    if (maxLenMy < (len1.myLen + len2.myLen+1) ) maxLenMy = len1.myLen + len2.myLen + 1;
-                    if (maxLenYou < (len1.youLen + len2.youLen+1)) maxLenYou = len1.youLen + len2.youLen + 1;
+                    p = checkVector(x, y, -1, +1, +1, -1, maxLenMy, maxLenYou);
+                    // если новая длина больше то сохраняем
+                    if (maxLenMy < p[0]) maxLenMy = p[0];
+                    if (maxLenYou < p[1]) maxLenYou = p[1];
 
-                    if (oldMaxMy != maxLenMy )
-                    {
+                    if (oldMaxMy != maxLenMy) {
                         myX = x;
                         myY = y;
                     }
 
-                    if (oldMaxYou != maxLenYou)
-                    {
+                    if (oldMaxYou != maxLenYou) {
                         youX = x;
                         youY = y;
                     }
@@ -103,62 +122,65 @@ public class PlayerComputer extends Player {
                 }
             }
         }
-        System.out.printf(" You = %d My = %d, win = %d  myx %d  myy %d , Youx %d Yoy y %d  %n",maxLenYou,maxLenMy,field.getCountToWin(),myX,myY,youX,youY);
+        System.out.printf("%n  длина посл игрока = %d  длина посл комп = %d,  лучший ход компьютера (%d,%d), лучший ход игрока (%d,%d) ", maxLenYou, maxLenMy,  myX, myY, youX, youY);
         // если можно выиграть то выигрываем
         if (field.getCountToWin() <= maxLenMy) {
-            field.setCellState(myX,myY,getSymbolInt());
-            System.out.println("если можно выиграть то выигрываем");
+            field.setCellState(myX, myY, getSymbolInt());
+            System.out.print("если можно выиграть то выигрываем");
         } else
             // если можно помешать выиграть то мешаем
-        if (field.getCountToWin() <= maxLenYou) {
-            field.setCellState(youX,youY,getSymbolInt());
-            System.out.println("если можно помешать выиграть то мешаем");
-        } else
-            // если макс комбинация меньше равно 2, то строим своё, иначе мешаем
-          if (maxLenYou <= 2) {
-            field.setCellState(myX,myY,getSymbolInt());
-              System.out.println("если макс комбинация меньше равно 2, то строим своё");
-          } else
-          {
-              field.setCellState(youX,youY,getSymbolInt());
-              System.out.printf("если макс комбинация больше/равно 2,  мешаем" );
-          }
+            if (field.getCountToWin() <= maxLenYou) {
+                field.setCellState(youX, youY, getSymbolInt());
+                System.out.println("если можно помешать выиграть то мешаем");
+            } else
+                // если макс комбинация меньше равно 2, то строим своё, иначе мешаем
+                if (maxLenYou <= 2) {
+                    field.setCellState(myX, myY, getSymbolInt());
+                    System.out.println("если макс комбинация меньше равно 2, то строим своё");
+                } else {
+                    field.setCellState(youX, youY, getSymbolInt());
+                    System.out.printf("если макс комбинация больше/равно 2,  мешаем");
+                }
     }
 
     private Point getLineLen(int x, int y, int dx, int dy, int symbolInt) {
-        int youLen = 0;
-        int myLen = 0;
+        int youLen = 0; // позиции игрока
+        int myLen = 0;  // позиции компьютера
+        int lenFree = 0; // кол-во свободных клеток
         int old_x = x;
         int old_y = y;
 
         boolean myStop = false;
         boolean youStop = false;
 
+        int loopCount = 0;
+
         while ((x + dx >= 0 && y + dy >= 0 && x + dx < field.getCountCol() && y + dy < field.getCountRow())
-                && (field.getCellState(x + dx, y + dy) != Cell.SYM_P))
-             {
-            if (field.getCellState(x + dx, y + dy) == symbolInt)
-            {
+                && loopCount < field.getCountToWin()) {
+
+            // если обе последовательности прерваны и пустоты тоже то на выход
+            if (myStop && youStop && field.getCellState(x + dx, y + dy) != Cell.SPACE) break;
+
+            if (field.getCellState(x + dx, y + dy) == symbolInt) {
                 // my
                 myLen++;
                 youStop = true;
-            } else
-            {
+            } else if (field.getCellState(x + dx, y + dy) != Cell.SPACE ) {
                 //you
                 youLen++;
                 myStop = true;
-            }
-            // если обе последовательности прерваны то на выход
-            if (myStop && youStop) break;
-            else {
-                x += dx; y += dy;
-            }
-
+            } else {
+                lenFree++;
+                myStop = true;
+                youStop = true;
             }
 
+            x += dx;
+            y += dy;
+            loopCount++;
 
-        return new Point(myLen, youLen,old_x,old_y);
-
+        }
+        return new Point(myLen, youLen, lenFree, old_x, old_y);
     }
 
     private void NextRandom() {
@@ -168,7 +190,7 @@ public class PlayerComputer extends Player {
         do {
             x = rand.nextInt(field.getCountCol());
             y = rand.nextInt(field.getCountRow());
-        } while (field.getCellState(x, y) != Cell.SYM_P);
+        } while (field.getCellState(x, y) != Cell.SPACE);
         field.setCellState(x, y, getSymbolInt());
 
     }
