@@ -3,9 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tictactoe;
+package ru.chertenok.tictactoe;
+
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 import java.awt.*;
+import java.io.File;
 import java.util.*;
 
 /**
@@ -27,7 +31,7 @@ public class Field {
     //для упрощения игроки и логика внутри класса поле
     private Player[] players = new Player[2];
     // текущий игрок
-    public Player currentPlayer;
+    private Player currentPlayer;
 
     private Cell[][] cell;
 
@@ -61,6 +65,7 @@ public class Field {
     }
 
     public void newGame() {
+        SoundEngine.stopSound();
         // инизиализируем ячейки на пусто
         for (int x = 0; x < countCol; x++) {
             for (int y = 0; y < countRow; y++) {
@@ -72,7 +77,7 @@ public class Field {
         isFinish = false;
         currentPlayer = players[0];
         listWinPoint.clear();
-        message = "Игра перезапущена, Ваш ход !";
+        message = "Игра перезапущена, Ваш ход,"+currentPlayer.getName() +" !";
     }
 
     public int getCellUsesCount() {
@@ -88,6 +93,7 @@ public class Field {
         if (currentPlayer == players[0]) currentPlayer = players[1];
         else currentPlayer = players[0];
         message = "";
+        SoundEngine.playTurn();
     }
     public boolean checkWinCell(int x, int y){
         Point p = new Point(x,y);
@@ -110,9 +116,15 @@ public class Field {
         }
 
 
-        if (isWin) message = "Игра окончена, победа ";
+        if (isWin) {
+            message = "Игра окончена, победа игрока " + currentPlayer.getName();
+            if (currentPlayer.getIsComputer())  SoundEngine.playLoss();
+            else SoundEngine.playWin();
+        }
+
         return isWin;
     }
+
 
     private boolean checkCell(int x, int y) {
         // считаем длину одинаковых символов в заданном направлении
@@ -153,7 +165,7 @@ public class Field {
 
     public boolean checkFinish() {
         if (!isFinish) isFinish = cellUsesCount == countCol * countRow;
-        if (isFinish && !isWin) message = "Игра окончена, больше ходов нет";
+        if (isFinish && !isWin) message = "Игра окончена, больше ходов нет. Ничья.";
         return isFinish;
     }
 
@@ -212,7 +224,7 @@ public class Field {
 
         currentPlayer = players[0];
 
-        message = "Игра начата, Ваш ход !";
+        message = "Игра начата, Ваш ход "+currentPlayer.getName()+"!";
     }
 
 

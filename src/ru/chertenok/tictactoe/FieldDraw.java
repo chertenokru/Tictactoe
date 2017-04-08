@@ -3,20 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tictactoe;
+package ru.chertenok.tictactoe;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.text.Font;
-
-import java.awt.*;
 
 /**
  *
@@ -38,6 +34,8 @@ public class FieldDraw {
 
     public void ReDraw() {
         labMessage.setText(field.getMessage());
+
+
         for (int x = 0; x < field.getCountCol(); x++) {
             for (int y = 0; y < field.getCountRow(); y++) {
                 btn[x][y].setText(field.getCelltoString(x, y));
@@ -63,6 +61,7 @@ public class FieldDraw {
 
         root2 = new HBox();
         root2.setAlignment(Pos.BOTTOM_CENTER);
+
         butReset = new Button("RESET");
         defStyle = butReset.getStyle();
         butReset.setOnAction(new EventHandler<ActionEvent>() {
@@ -78,6 +77,7 @@ public class FieldDraw {
         root2.getChildren().add(labMessage);
         root2.getChildren().add(butReset);
         root.getChildren().add(labMessage);
+        root.setStyle("-fx-background-image: url(\"resources/image/background.jpg\");");
 
 
         for (int x = 0; x < field.getCountCol(); x++) {

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tictactoe;
+package ru.chertenok.tictactoe;
 
 import java.util.Random;
 
@@ -18,7 +18,7 @@ public class PlayerComputer extends Player {
         int x;
         int y;
 
-        public Point(int myLen, int youLen, int x, int y) {
+        private Point(int myLen, int youLen, int x, int y) {
             this.myLen = myLen;
             this.youLen = youLen;
             this.x = x;
@@ -27,7 +27,7 @@ public class PlayerComputer extends Player {
     }
 
     public PlayerComputer(Field field, int symbol) {
-        super(field, symbol, "Computer Random11");
+        super(field, symbol, "Компьютер");
         isComputer = true;
     }
 
@@ -56,31 +56,34 @@ public class PlayerComputer extends Player {
             for(int y = 0; y <field.getCountRow(); y++) {
                 if (field.getCellState(x,y) == Cell.SYM_P )
                 {
+                    //todo  добавить статус - открытая/полуоткрытая/закрытая линия,
+                    //todo или может ли быть достигнута победа из этой точки в дальнейшем
+                    //todo точки могущие принести победу должны иметь приоритет над другими такой же длины
                     // и высчитываем свои и чужие позиции в результате такого хода
                    int oldMaxMy = maxLenMy;
                    int oldMaxYou = maxLenYou;
 
                     // горизонт
-                    len1 = getLineLen(x,y,-1,0, symbolInt);
-                    len2 = getLineLen(x,y,1,0, symbolInt);
+                    len1 = getLineLen(x,y,-1,0, getSymbolInt());
+                    len2 = getLineLen(x,y,1,0, getSymbolInt());
                     if (maxLenMy < (len1.myLen + len2.myLen+1) ) maxLenMy = len1.myLen + len2.myLen + 1;
                     if (maxLenYou < (len1.youLen + len2.youLen+1)) maxLenYou = len1.youLen + len2.youLen + 1;
 
                     // вертикаль
-                    len1 = getLineLen(x,y,0,-1, symbolInt);
-                    len2 = getLineLen(x,y,0,1, symbolInt);
+                    len1 = getLineLen(x,y,0,-1, getSymbolInt());
+                    len2 = getLineLen(x,y,0,1, getSymbolInt());
                     if (maxLenMy < (len1.myLen + len2.myLen+1) ) maxLenMy = len1.myLen + len2.myLen + 1;
                     if (maxLenYou < (len1.youLen + len2.youLen+1)) maxLenYou = len1.youLen + len2.youLen + 1;
 
                     // диагональ 1
-                    len1 = getLineLen(x,y,1,1, symbolInt);
-                    len2 = getLineLen(x,y,-1,-1, symbolInt);
+                    len1 = getLineLen(x,y,1,1, getSymbolInt());
+                    len2 = getLineLen(x,y,-1,-1, getSymbolInt());
                     if (maxLenMy < (len1.myLen + len2.myLen+1) ) maxLenMy = len1.myLen + len2.myLen + 1;
                     if (maxLenYou < (len1.youLen + len2.youLen+1)) maxLenYou = len1.youLen + len2.youLen + 1;
 
                     // диагональ 2
-                    len1 = getLineLen(x,y,-1,+1, symbolInt);
-                    len2 = getLineLen(x,y,+1,-1, symbolInt);
+                    len1 = getLineLen(x,y,-1,+1, getSymbolInt());
+                    len2 = getLineLen(x,y,+1,-1, getSymbolInt());
                     if (maxLenMy < (len1.myLen + len2.myLen+1) ) maxLenMy = len1.myLen + len2.myLen + 1;
                     if (maxLenYou < (len1.youLen + len2.youLen+1)) maxLenYou = len1.youLen + len2.youLen + 1;
 
@@ -103,22 +106,22 @@ public class PlayerComputer extends Player {
         System.out.printf(" You = %d My = %d, win = %d  myx %d  myy %d , Youx %d Yoy y %d  %n",maxLenYou,maxLenMy,field.getCountToWin(),myX,myY,youX,youY);
         // если можно выиграть то выигрываем
         if (field.getCountToWin() <= maxLenMy) {
-            field.setCellState(myX,myY,symbolInt);
+            field.setCellState(myX,myY,getSymbolInt());
             System.out.println("если можно выиграть то выигрываем");
         } else
             // если можно помешать выиграть то мешаем
         if (field.getCountToWin() <= maxLenYou) {
-            field.setCellState(youX,youY,symbolInt);
+            field.setCellState(youX,youY,getSymbolInt());
             System.out.println("если можно помешать выиграть то мешаем");
         } else
             // если макс комбинация меньше равно 2, то строим своё, иначе мешаем
           if (maxLenYou <= 2) {
-            field.setCellState(myX,myY,symbolInt);
+            field.setCellState(myX,myY,getSymbolInt());
               System.out.println("если макс комбинация меньше равно 2, то строим своё");
           } else
           {
-              field.setCellState(youX,youY,symbolInt);
-              System.out.printf("если макс комбинация меньше равно 2,  мешаем" );
+              field.setCellState(youX,youY,getSymbolInt());
+              System.out.printf("если макс комбинация больше/равно 2,  мешаем" );
           }
     }
 
@@ -166,7 +169,7 @@ public class PlayerComputer extends Player {
             x = rand.nextInt(field.getCountCol());
             y = rand.nextInt(field.getCountRow());
         } while (field.getCellState(x, y) != Cell.SYM_P);
-        field.setCellState(x, y, symbolInt);
+        field.setCellState(x, y, getSymbolInt());
 
     }
 

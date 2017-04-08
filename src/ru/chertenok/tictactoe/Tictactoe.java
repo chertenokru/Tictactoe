@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tictactoe;
+package ru.chertenok.tictactoe;
 
 import javafx.application.Application;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
@@ -37,6 +38,9 @@ public class Tictactoe extends Application {
         fieldDraw = new FieldDraw(root, field, 35);
         Scene scene = new Scene(root, 700, 640);
         primaryStage.setTitle("Крестики-Нолики");
+        // Устанавливаем иконку приложения.
+        primaryStage.getIcons().add(new Image("file:resources/image/ico.png"));
+
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);
         primaryStage.show();

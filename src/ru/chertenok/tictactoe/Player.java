@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tictactoe;
+package ru.chertenok.tictactoe;
 
 /**
  *
@@ -12,9 +12,9 @@ package tictactoe;
 abstract public class Player {
 
 
-    protected String name;
-    protected char symbol;
-    protected int symbolInt;
+    private String name;
+    private char symbol;
+    private int symbolInt;
 
     /**
      * Опредяляет компьютер ходит или человек
@@ -43,4 +43,11 @@ abstract public class Player {
         isComputer = false;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
