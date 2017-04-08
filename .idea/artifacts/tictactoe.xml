@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="javafx" build-on-make="true" name="tictactoe">
-    <output-path>$PROJECT_DIR$/</output-path>
+    <output-path>$PROJECT_DIR$/out/production/art</output-path>
     <properties id="javafx-properties">
       <options>
         <option name="appClass" value="ru.chertenok.tictactoe.Tictactoe" />
