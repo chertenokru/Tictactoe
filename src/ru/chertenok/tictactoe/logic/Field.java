@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ru.chertenok.tictactoe;
+package ru.chertenok.tictactoe.logic;
+
+import ru.chertenok.tictactoe.SoundEngine;
 
 import java.awt.*;
 import java.util.*;

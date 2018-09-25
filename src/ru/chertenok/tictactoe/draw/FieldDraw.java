@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ru.chertenok.tictactoe;
+package ru.chertenok.tictactoe.draw;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import ru.chertenok.tictactoe.logic.Field;
 
 /**
  *
